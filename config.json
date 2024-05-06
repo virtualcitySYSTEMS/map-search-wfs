@@ -1,4 +1,20 @@
 {
-  "name": "@vcmap/hello-world",
-  "showHelloWorldBtn": true
+  "url": "./search-wfs",
+  "addressMapping": {
+    "city": "ort",
+    "street": "strasse",
+    "number": "hnr",
+    "zip": "plz"
+  },
+  "getFeatureOptions": {
+    "featureNS": "http://gingko.de/dueren",
+    "featurePrefix": "dueren",
+    "featureTypes": ["hausnummern"],
+    "maxFeatures": 10,
+    "geometryName": "geom",
+    "srsName": "urn:ogc:def:crs:EPSG::4326"
+  },
+  "filterExpression": "<ogc:Filter xmlns='http://www.opengis.net/wfs' xmlns:ogc=\"http://www.opengis.net/ogc\"><% if (token[2]) { %><ogc:And>      <ogc:PropertyIsLike wildCard=\"%\" singleChar=\"_\" escape=\"\\\">        <ogc:PropertyName>dueren:strasse</ogc:PropertyName>        <ogc:Literal><%= token[1] %></ogc:Literal>      </ogc:PropertyIsLike>    <ogc:PropertyIsEqualTo>      <ogc:PropertyName>dueren:hnr</ogc:PropertyName>      <ogc:Literal><%= token[2] %></ogc:Literal>    </ogc:PropertyIsEqualTo></ogc:And><% } else { %>      <ogc:PropertyIsLike wildCard=\"%\" singleChar=\"_\" escape=\"\\\">        <ogc:PropertyName>dueren:strasse</ogc:PropertyName>        <ogc:Literal><%= token[1] %></ogc:Literal>      </ogc:PropertyIsLike><% } %>    </ogc:Filter>",
+  "regEx": "([a-zA-ZßäöüÄÖÜ\\.\\-\\s]+)\\s*([0-9]+\\s*[a-zA-Z]*)?",
+  "minToken": 1
 }

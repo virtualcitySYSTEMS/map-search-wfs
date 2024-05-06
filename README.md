@@ -1,23 +1,40 @@
-# @vcmap/hello-world
+# WFS Search Plugin
 
-> Part of the [VC Map Project](https://github.com/virtualcitySYSTEMS/map-ui)
+Extends search widget using Web Feature Service (WFS)
 
-This is the `@vcmap/ui` **Hello World** plugin!
+## Configuration:
 
-## Content
+| Property            | Type                                                                                                                             | State    | Description                                                                                                                                                                                               |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `url`               | string                                                                                                                           | required | URL of the search service                                                                                                                                                                                 |
+| `addressMapping`    | Record<string, string>                                                                                                           | required | Mapping the feature attributes to the VC Map Address Balloon attributes                                                                                                                                   |
+| `getFeatureOptions` | [ol.format.WFS.writeGeFeatureOptions](https://openlayers.org/en/latest/apidoc/module-ol_format_WFS.html#~WriteGetFeatureOptions) | required | The options passed to writeGetFeature for WFS query                                                                                                                                                       |
+| `isStoredQuery`     | boolean                                                                                                                          | optional | Wether this is a `wfs:StoredQuery`. Stored query filter expressions are treated _as entire Query_ not just the body of the Query. All attributes of the query tag are copied at runtime (featureType etc) |
+| `filterExpression`  | string                                                                                                                           | required | The filter expression as a template. Is passed an array of tokens (the result of .match(regEx))                                                                                                           |
+| `regEx`             | string                                                                                                                           | required | The RegEx to use for tokenizing.                                                                                                                                                                          |
+| `minToken`          | number                                                                                                                           | required | The minimum number of RegEx groups to find in a given string to search. For instance if requiring both a street and house number, the count would be 2.                                                   |
 
-The plugin provides a minimal show-case working example including:
+Example:
 
-- implementing the VcsPlugin interface [index.js](/src/index.js)
-  - plugin config
-  - plugin state (set and getState)
-  - plugin hooks
-    - initialize
-    - onVcsAppMounted
-    - destroy
-  - plugin serializing (toJSON)
-  - internationalization (i18n)
-- sample ui-component [helloWorld.vue](/src/helloWorld.vue)
-  - using vcs and vuetify components
-  - plugin assets (getPluginAssetUrl)
-- plugin API testing [spec](/tests/helloWorld.spec.js)
+```json
+{
+  "url": "./search-wfs",
+  "addressMapping": {
+    "city": "ort",
+    "street": "strasse",
+    "number": "hnr",
+    "zip": "plz"
+  },
+  "getFeatureOptions": {
+    "featureNS": "http://gingko.de/dueren",
+    "featurePrefix": "dueren",
+    "featureTypes": ["hausnummern"],
+    "maxFeatures": 10,
+    "geometryName": "geom",
+    "srsName": "urn:ogc:def:crs:EPSG::4326"
+  },
+  "filterExpression": "<ogc:Filter xmlns='http://www.opengis.net/wfs' xmlns:ogc=\"http://www.opengis.net/ogc\"><% if (token[2]) { %><ogc:And>      <ogc:PropertyIsLike wildCard=\"%\" singleChar=\"_\" escape=\"\\\">        <ogc:PropertyName>dueren:strasse</ogc:PropertyName>        <ogc:Literal><%= token[1] %></ogc:Literal>      </ogc:PropertyIsLike>    <ogc:PropertyIsEqualTo>      <ogc:PropertyName>dueren:hnr</ogc:PropertyName>      <ogc:Literal><%= token[2] %></ogc:Literal>    </ogc:PropertyIsEqualTo></ogc:And><% } else { %>      <ogc:PropertyIsLike wildCard=\"%\" singleChar=\"_\" escape=\"\\\">        <ogc:PropertyName>dueren:strasse</ogc:PropertyName>        <ogc:Literal><%= token[1] %></ogc:Literal>      </ogc:PropertyIsLike><% } %>    </ogc:Filter>",
+  "regEx": "([a-zA-ZßäöüÄÖÜ\\.\\-\\s]+)\\s*([0-9]+\\s*[a-zA-Z]*)?",
+  "minToken": 1
+}
+```
