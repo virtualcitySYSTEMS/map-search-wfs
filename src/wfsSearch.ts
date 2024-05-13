@@ -85,14 +85,11 @@ class WfsSearch implements SearchImpl {
             featureProjection: mercatorProjection.proj,
           })
           .map((feature) => {
-            const defaultTitle = `${feature.get(this.addressMapping.street!)} ${feature.get(
+            const displayName = `${feature.get(this.addressMapping.street!)} ${feature.get(
               this.addressMapping.number!,
             )}, ${feature.get(
               this.addressMapping.zip!,
             )} ${feature.get(this.addressMapping.city!)}`;
-            if (!feature.get(this.addressMapping.addressName!)) {
-              feature.set(this.addressMapping.addressName!, defaultTitle);
-            }
             // eslint-disable-next-line
             // @ts-ignore
             feature[featureInfoViewSymbol] = new AddressBalloonFeatureInfoView({
@@ -102,7 +99,7 @@ class WfsSearch implements SearchImpl {
               ...this.addressMapping,
             } as AddressBalloonFeatureInfoViewOptions);
             return {
-              title: feature.get(this.addressMapping.addressName!),
+              title: displayName,
               feature,
             };
           });
