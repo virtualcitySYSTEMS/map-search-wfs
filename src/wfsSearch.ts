@@ -11,6 +11,8 @@ import { WriteGetFeatureOptions } from 'ol/format/WFS';
 import { getInitForUrl } from '@vcmap/core/dist/src/util/fetch';
 import { AddressBalloonFeatureInfoViewOptions } from '@vcmap/ui/src/featureInfo/addressBalloonFeatureInfoView';
 import { parseBoolean } from '@vcsuite/parsers';
+import { is } from '@vcsuite/check';
+import { getLogger } from '@vcsuite/logger';
 import { name } from '../package.json';
 
 export type PluginConfig = {
@@ -42,16 +44,25 @@ class WfsSearch implements SearchImpl {
 
   constructor(app: VcsUiApp, config: PluginConfig) {
     this.app = app;
-    this.url = config.url.replace(/\/$/, '');
+    if (is(config.url, String)) {
+      this.url = config.url.replace(/\/$/, '');
+    } else {
+      getLogger(name).error('Please provide an url');
+    }
+
     this.addressMapping = Object.assign(
       AddressBalloonFeatureInfoView.getDefaultOptions(),
       config.addressMapping,
     );
     this.getFeatureOptions = config.getFeatureOptions;
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    this.filterExpression = UnderscoreTemplate(config.filterExpression);
+    if (is(config.filterExpression, String)) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      this.filterExpression = UnderscoreTemplate(config.filterExpression);
+    } else {
+      getLogger(name).error('Please provide an filterExpression');
+    }
     this.isStoredQuery = parseBoolean(config.isStoredQuery, false);
     this.regEx = config.regEx;
     this.minToken = config.minToken;

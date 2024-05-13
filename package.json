@@ -65,7 +65,9 @@
   },
   "dependencies": {
     "underscore.template": "~0.1.7",
-    "@vcsuite/parsers": "^1.0.3"
+    "@vcsuite/parsers": "^1.0.3",
+    "@vcsuite/logger": "^1.0.1",
+    "@vcsuite/check": "^1.1.2"
   },
   "mapVersion": "^5.2"
 }
