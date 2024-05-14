@@ -1,6 +1,6 @@
 {
   "name": "@vcmap/search-wfs",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "wfs search extension",
   "type": "module",
   "main": "dist/index.ts",
