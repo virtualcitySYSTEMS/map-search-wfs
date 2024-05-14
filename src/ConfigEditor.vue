@@ -301,9 +301,15 @@
         .then((config: PluginConfig) => {
           for (const [key, value] of Object.entries(config)) {
             if (value) {
-              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-              // @ts-ignore
-              localConfig.value[key] = value;
+              if (typeof value === 'object') {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
+                Object.assign(localConfig.value[key], value);
+              } else {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
+                localConfig.value[key] = value;
+              }
             }
           }
         }) // eslint-disable-next-line no-console
