@@ -74,6 +74,7 @@
     </v-container>
     <VcsFormSection
       :expandable="true"
+      start-open
       heading="searchWfs.configEditor.queryOptions"
     >
       <v-row no-gutters>
@@ -298,7 +299,13 @@
       props
         .getConfig()
         .then((config: PluginConfig) => {
-          Object.assign(localConfig.value, config);
+          for (const [key, value] of Object.entries(config)) {
+            if (value) {
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
+              localConfig.value[key] = value;
+            }
+          }
         }) // eslint-disable-next-line no-console
         .catch((err) => console.error(err));
 
