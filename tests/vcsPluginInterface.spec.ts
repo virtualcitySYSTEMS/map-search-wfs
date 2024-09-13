@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { VcsUiApp, loadPlugin, VcsPlugin } from '@vcmap/ui';
+import { VcsUiApp, loadPlugin, isValidPackageName, VcsPlugin } from '@vcmap/ui';
 import plugin from '../src/index.js';
 import packageJSON from '../package.json';
 
@@ -41,8 +41,11 @@ describe('VcsPlugin Interface test', () => {
   });
 
   describe('name, version, mapVersion', () => {
-    it('should return the plugin name from the package.json', () => {
+    it('should return a valid plugin name from the package.json', () => {
       expect(pluginInstance).to.have.property('name', packageJSON.name);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      expect(isValidPackageName(pluginInstance.name)).to.be.true;
     });
     it('should return the plugin version from the package.json', () => {
       expect(pluginInstance).to.have.property('version', packageJSON.version);
@@ -134,6 +137,7 @@ describe('VcsPlugin Interface test', () => {
     });
 
     it('should override the plugin correctly', () => {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       expect(() => app.plugins.override(pluginInstance2!)).to.not.throw;
       app.plugins.override(pluginInstance2!);
       expect(app.plugins.getByKey(packageJSON.name)).to.have.property(

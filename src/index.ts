@@ -1,5 +1,4 @@
 import { PluginConfigEditor, VcsPlugin, VcsUiApp } from '@vcmap/ui';
-import { Component } from 'vue';
 import { name, version, mapVersion } from '../package.json';
 import WfsSearch, { PluginConfig } from './wfsSearch.js';
 import getDefaultOptions from './defaultOptions.js';
@@ -7,7 +6,7 @@ import ConfigEditor from './ConfigEditor.vue';
 
 export default function wfsSearchPlugin(
   config: PluginConfig,
-): VcsPlugin<Record<never, never>, Record<never, never>> {
+): VcsPlugin<PluginConfig, Record<never, never>> {
   return {
     get name(): string {
       return name;
@@ -70,8 +69,8 @@ export default function wfsSearchPlugin(
         },
       },
     },
-    getConfigEditors(): PluginConfigEditor[] {
-      return [{ component: ConfigEditor as Component & { title: string } }];
+    getConfigEditors(): PluginConfigEditor<object>[] {
+      return [{ component: ConfigEditor }];
     },
   };
 }

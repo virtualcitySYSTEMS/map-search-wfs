@@ -28,13 +28,13 @@ export type PluginConfig = {
 class WfsSearch implements SearchImpl {
   app: VcsUiApp;
 
-  url: string;
+  url!: string;
 
   addressMapping: AddressBalloonFeatureInfoViewOptions;
 
   getFeatureOptions: WriteGetFeatureOptions;
 
-  filterExpression: (arg0: object) => string;
+  filterExpression!: (arg0: object) => string;
 
   isStoredQuery?: boolean;
 
@@ -61,7 +61,7 @@ class WfsSearch implements SearchImpl {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       this.filterExpression = UnderscoreTemplate(config.filterExpression);
     } else {
-      getLogger(name).error('Please provide an filterExpression');
+      getLogger(name).error('Please provide a filterExpression');
     }
     this.isStoredQuery = parseBoolean(config.isStoredQuery, false);
     this.regEx = config.regEx;
@@ -73,9 +73,7 @@ class WfsSearch implements SearchImpl {
     return name;
   }
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore, need fix of the returned type in core api
-  async search(query: string): Array<ResultItem> {
+  async search(query: string): Promise<ResultItem[]> {
     const wfsFormat = new WFS();
     const postData = this.generateGetFeatureXMLString(query, wfsFormat);
     if (!postData) {
