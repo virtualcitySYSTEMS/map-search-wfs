@@ -4,7 +4,13 @@ import {
   VcsUiApp,
 } from '@vcmap/ui';
 import { ResultItem, SearchImpl } from '@vcmap/ui/src/search/search';
-import { mercatorProjection, requestUrl, wgs84Projection } from '@vcmap/core';
+import {
+  mercatorProjection,
+  Projection,
+  ProjectionOptions,
+  requestUrl,
+  wgs84Projection,
+} from '@vcmap/core';
 import { WFS } from 'ol/format';
 import UnderscoreTemplate from 'underscore.template';
 import { WriteGetFeatureOptions } from 'ol/format/WFS';
@@ -23,6 +29,7 @@ export type PluginConfig = {
   isStoredQuery?: boolean;
   regEx: string;
   minToken: number;
+  projection?: ProjectionOptions;
 };
 
 class WfsSearch implements SearchImpl {
@@ -42,6 +49,8 @@ class WfsSearch implements SearchImpl {
 
   minToken: number;
 
+  projection: Projection;
+
   constructor(app: VcsUiApp, config: PluginConfig) {
     this.app = app;
     if (is(config.url, String)) {
@@ -56,9 +65,6 @@ class WfsSearch implements SearchImpl {
     );
     this.getFeatureOptions = config.getFeatureOptions;
     if (is(config.filterExpression, String)) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       this.filterExpression = UnderscoreTemplate(config.filterExpression);
     } else {
       getLogger(name).error('Please provide a filterExpression');
@@ -66,6 +72,9 @@ class WfsSearch implements SearchImpl {
     this.isStoredQuery = parseBoolean(config.isStoredQuery, false);
     this.regEx = config.regEx;
     this.minToken = config.minToken;
+    this.projection = new Projection(
+      config.projection ?? wgs84Projection.toJSON(),
+    );
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -90,7 +99,7 @@ class WfsSearch implements SearchImpl {
       .then((data) => {
         return wfsFormat
           .readFeatures(data, {
-            dataProjection: wgs84Projection.proj,
+            dataProjection: this.projection.proj,
             featureProjection: mercatorProjection.proj,
           })
           .map((feature) => {

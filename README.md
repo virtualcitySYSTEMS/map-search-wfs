@@ -13,6 +13,7 @@ Extends search widget using Web Feature Service (WFS)
 | `filterExpression`  | string                                                                                                                           | required | The filter expression as a template. Is passed an array of tokens (the result of .match(regEx))                                                                                                           |
 | `regEx`             | string                                                                                                                           | required | The RegEx to use for tokenizing.                                                                                                                                                                          |
 | `minToken`          | number                                                                                                                           | required | The minimum number of RegEx groups to find in a given string to search. For instance if requiring both a street and house number, the count would be 2.                                                   |
+| `projection`        | ProjectionOptions                                                                                                                | optional | The projection of the data. Defaults to WGS84                                                                                                                                                             |
 
 Example:
 

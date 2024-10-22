@@ -18,8 +18,6 @@ export default function wfsSearchPlugin(
       return mapVersion;
     },
     initialize(vcsUiApp: VcsUiApp): void {
-      // eslint-disable-next-line
-      // @ts-ignore
       vcsUiApp.search.add(new WfsSearch(vcsUiApp, config), name);
     },
     getDefaultOptions,

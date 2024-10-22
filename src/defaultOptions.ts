@@ -1,3 +1,4 @@
+import { wgs84Projection } from '@vcmap/core';
 import { PluginConfig } from './wfsSearch.js';
 
 export default function getDefaultOptions(): PluginConfig {
@@ -20,5 +21,6 @@ export default function getDefaultOptions(): PluginConfig {
     filterExpression: '',
     regEx: '([a-zA-ZßäöüÄÖÜ\\.\\-\\s]+)\\s*([0-9]+\\s*[a-zA-Z]*)?',
     minToken: 1,
+    projection: wgs84Projection.toJSON(),
   };
 }

@@ -52,7 +52,7 @@
           }}</VcsLabel>
         </v-col>
         <v-col>
-          <VcsTextField
+          <VcsTextArea
             id="filterExpression"
             clearable
             v-model.trim="localConfig.filterExpression"
@@ -67,6 +67,9 @@
           v-model="localConfig.isStoredQuery"
           :label="$t('searchWfs.configEditor.storedQuery')"
         />
+      </v-row>
+      <v-row no-gutters>
+        <vcs-projection v-model="localConfig.projection" />
       </v-row>
     </v-container>
     <VcsFormSection
@@ -245,6 +248,8 @@
     AbstractConfigEditor,
     VcsFormSection,
     VcsChipArrayInput,
+    VcsTextArea,
+    VcsProjection,
   } from '@vcmap/ui';
   import { ref, defineComponent, PropType } from 'vue';
   import { PluginConfig } from './wfsSearch.js';
@@ -258,6 +263,7 @@
     name: 'WfsSearchEditor',
     title: 'WFS Search Editor',
     components: {
+      VcsTextArea,
       VcsChipArrayInput,
       VcsFormSection,
       VContainer,
@@ -267,6 +273,7 @@
       AbstractConfigEditor,
       VcsLabel,
       VcsTextField,
+      VcsProjection,
     },
     props: {
       getConfig: {
