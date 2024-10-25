@@ -261,7 +261,6 @@
 
   export default defineComponent({
     name: 'WfsSearchEditor',
-    title: 'WFS Search Editor',
     components: {
       VcsTextArea,
       VcsChipArrayInput,

@@ -7,6 +7,7 @@ import ConfigEditor from './ConfigEditor.vue';
 export default function wfsSearchPlugin(
   config: PluginConfig,
 ): VcsPlugin<PluginConfig, Record<never, never>> {
+  let app: VcsUiApp;
   return {
     get name(): string {
       return name;
@@ -18,6 +19,7 @@ export default function wfsSearchPlugin(
       return mapVersion;
     },
     initialize(vcsUiApp: VcsUiApp): void {
+      app = vcsUiApp;
       vcsUiApp.search.add(new WfsSearch(vcsUiApp, config), name);
     },
     getDefaultOptions,
@@ -43,6 +45,7 @@ export default function wfsSearchPlugin(
       en: {
         searchWfs: {
           configEditor: {
+            title: 'WFS Search Editor',
             regEx: 'Regular Expression',
             minToken: 'Minimum number of Token',
             filterExpression: 'Filter Expression',
@@ -56,6 +59,7 @@ export default function wfsSearchPlugin(
       de: {
         searchWfs: {
           configEditor: {
+            title: 'WFS-Suche Editor',
             regEx: 'Regulärer Ausdruck',
             minToken: 'Mindestanzahl von Token',
             filterExpression: 'Filterausdruck',
@@ -68,7 +72,16 @@ export default function wfsSearchPlugin(
       },
     },
     getConfigEditors(): PluginConfigEditor<object>[] {
-      return [{ component: ConfigEditor }];
+      return [
+        {
+          component: ConfigEditor,
+          title: 'searchWfs.configEditor.title',
+          infoUrlCallback: app?.getHelpUrlCallback(
+            '/components/plugins/searchToolConfig.html#id_searchWfsConfig',
+            'app-configurator',
+          ),
+        },
+      ];
     },
   };
 }
