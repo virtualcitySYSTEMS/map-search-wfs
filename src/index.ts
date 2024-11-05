@@ -77,7 +77,7 @@ export default function wfsSearchPlugin(
           component: ConfigEditor,
           title: 'searchWfs.configEditor.title',
           infoUrlCallback: app?.getHelpUrlCallback(
-            '/components/plugins/searchToolConfig.html#id_searchWfsConfig',
+            '/components/plugins/searchToolConfig.html#id_searchWFSConfig',
             'app-configurator',
           ),
         },
