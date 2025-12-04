@@ -1,3 +1,4 @@
+import { Projection } from '@vcmap/core';
 import { PluginConfigEditor, VcsPlugin, VcsUiApp } from '@vcmap/ui';
 import { name, version, mapVersion } from '../package.json';
 import WfsSearch, { PluginConfig } from './wfsSearch.js';
@@ -38,6 +39,14 @@ export default function wfsSearchPlugin(
         config.isStoredQuery !== defaultOptions.isStoredQuery
       ) {
         options.isStoredQuery = config.isStoredQuery;
+      }
+      if (
+        config.projection &&
+        !new Projection(config.projection).equals(
+          new Projection(defaultOptions.projection),
+        )
+      ) {
+        options.projection = config.projection;
       }
       return options;
     },

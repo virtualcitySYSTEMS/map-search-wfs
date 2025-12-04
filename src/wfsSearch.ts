@@ -128,7 +128,7 @@ class WfsSearch implements SearchImpl {
   }
 
   generateGetFeatureXMLString(query: string, wfsFormat: WFS): string | null {
-    const token = query.match(new RegExp(this.regEx));
+    const token = query.match(new RegExp(this.regEx, 'u'));
     if (!token || token.length < this.minToken + 1) {
       return null;
     }

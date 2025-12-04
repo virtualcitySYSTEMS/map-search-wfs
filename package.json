@@ -64,6 +64,10 @@
     "vitest": "^2.1.4",
     "vue-tsc": "^2.1.10"
   },
+  "overrides": {
+    "esbuild": "^0.25.0",
+    "@zip.js/zip.js": "2.7.68"
+  },
   "dependencies": {
     "@vcsuite/check": "^1.1.2",
     "@vcsuite/logger": "^1.0.1",

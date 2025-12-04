@@ -1,3 +1,8 @@
+# v2.0.2
+
+- Update default `regEx`
+- Fix a bug where the configuration of the Projection would not be possible
+
 # v2.0.1
 
 - Fix config editor help url

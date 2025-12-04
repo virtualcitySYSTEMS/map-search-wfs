@@ -19,7 +19,7 @@ export default function getDefaultOptions(): PluginConfig {
       srsName: 'urn:ogc:def:crs:EPSG::4326',
     },
     filterExpression: '',
-    regEx: '([a-zA-ZßäöüÄÖÜ\\.\\-\\s]+)\\s*([0-9]+\\s*[a-zA-Z]*)?',
+    regEx: "^([\\p{L}0-9'\\.\\-\\s]+?),*\\s*([0-9\\-]+\\s*[a-zA-Z]{0,1})?$",
     minToken: 1,
     projection: wgs84Projection.toJSON(),
   };
