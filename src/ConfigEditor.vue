@@ -1,5 +1,5 @@
 <template>
-  <AbstractConfigEditor @submit="apply" v-bind="{ ...$attrs, ...$props }">
+  <AbstractConfigEditor @submit="apply">
     <v-container class="py-0 px-1">
       <v-row no-gutters>
         <v-col>
@@ -165,76 +165,125 @@
       <v-container class="py-0 px-1">
         <v-row no-gutters>
           <v-col>
-            <VcsLabel html-for="addressName">addressName</VcsLabel>
+            <VcsLabel html-for="displayNameTemplate">{{
+              $t('searchWfs.configEditor.displayNameTemplate')
+            }}</VcsLabel>
           </v-col>
           <v-col>
-            <VcsTextField
-              id="addressName"
-              clearable
-              v-model.trim="localConfig.addressMapping.addressName"
+            <vcs-text-field
+              id="displayNameTemplate"
+              v-model="localConfig.displayNameTemplate"
             />
           </v-col>
         </v-row>
         <v-row no-gutters>
           <v-col>
-            <VcsLabel html-for="street">street</VcsLabel>
+            <VcsLabel html-for="balloonType">{{
+              $t('searchWfs.configEditor.balloonType')
+            }}</VcsLabel>
           </v-col>
           <v-col>
-            <VcsTextField
-              id="street"
-              clearable
-              v-model.trim="localConfig.addressMapping.street"
+            <vcs-select
+              id="balloonType"
+              v-model="balloonType"
+              :items="[
+                { value: 'address', title: 'searchWfs.configEditor.address' },
+                { value: 'markdown', title: 'searchWfs.configEditor.markdown' },
+              ]"
             />
           </v-col>
         </v-row>
-        <v-row no-gutters>
-          <v-col>
-            <VcsLabel html-for="number">number</VcsLabel>
-          </v-col>
-          <v-col>
-            <VcsTextField
-              id="number"
-              clearable
-              v-model.trim="localConfig.addressMapping.number"
-            />
-          </v-col>
-        </v-row>
-        <v-row no-gutters>
-          <v-col>
-            <VcsLabel html-for="city">city</VcsLabel>
-          </v-col>
-          <v-col>
-            <VcsTextField
-              id="city"
-              clearable
-              v-model.trim="localConfig.addressMapping.city"
-            />
-          </v-col>
-        </v-row>
-        <v-row no-gutters>
-          <v-col>
-            <VcsLabel html-for="zip">zip</VcsLabel>
-          </v-col>
-          <v-col>
-            <VcsTextField
-              id="zip"
-              clearable
-              v-model.trim="localConfig.addressMapping.zip"
-            />
-          </v-col>
-        </v-row>
-        <v-row no-gutters>
-          <v-col>
-            <VcsLabel html-for="country">country</VcsLabel>
-          </v-col>
-          <v-col>
-            <VcsTextField
-              id="country"
-              clearable
-              v-model.trim="localConfig.addressMapping.country"
-            />
-          </v-col>
-        </v-row>
+        <template v-if="balloonType === 'address'">
+          <v-row no-gutters>
+            <v-col>
+              <VcsLabel html-for="addressName">addressName</VcsLabel>
+            </v-col>
+            <v-col>
+              <VcsTextField
+                id="addressName"
+                clearable
+                v-model.trim="localConfig.addressMapping.addressName"
+              />
+            </v-col>
+          </v-row>
+          <v-row no-gutters>
+            <v-col>
+              <VcsLabel html-for="street">street</VcsLabel>
+            </v-col>
+            <v-col>
+              <VcsTextField
+                id="street"
+                clearable
+                v-model.trim="localConfig.addressMapping.street"
+              />
+            </v-col>
+          </v-row>
+          <v-row no-gutters>
+            <v-col>
+              <VcsLabel html-for="number">number</VcsLabel>
+            </v-col>
+            <v-col>
+              <VcsTextField
+                id="number"
+                clearable
+                v-model.trim="localConfig.addressMapping.number"
+              />
+            </v-col>
+          </v-row>
+          <v-row no-gutters>
+            <v-col>
+              <VcsLabel html-for="city">city</VcsLabel>
+            </v-col>
+            <v-col>
+              <VcsTextField
+                id="city"
+                clearable
+                v-model.trim="localConfig.addressMapping.city"
+              />
+            </v-col>
+          </v-row>
+          <v-row no-gutters>
+            <v-col>
+              <VcsLabel html-for="zip">zip</VcsLabel>
+            </v-col>
+            <v-col>
+              <VcsTextField
+                id="zip"
+                clearable
+                v-model.trim="localConfig.addressMapping.zip"
+              />
+            </v-col>
+          </v-row>
+          <v-row no-gutters>
+            <v-col>
+              <VcsLabel html-for="country">country</VcsLabel>
+            </v-col>
+            <v-col>
+              <VcsTextField
+                id="country"
+                clearable
+                v-model.trim="localConfig.addressMapping.country"
+              />
+            </v-col>
+          </v-row>
+        </template>
+        <template v-if="balloonType === 'markdown'">
+          <v-row no-gutters>
+            <v-col>
+              <VcsLabel html-for="template" required>{{
+                $t('searchWfs.configEditor.markdownTemplate')
+              }}</VcsLabel>
+            </v-col>
+            <v-col>
+              <VcsTextArea
+                id="template"
+                clearable
+                v-model.trim="localConfig.featureInfoViewOptions!.template"
+                :rules="[isRequired]"
+              />
+            </v-col>
+          </v-row>
+        </template>
       </v-container>
     </VcsFormSection>
   </AbstractConfigEditor>
@@ -250,10 +299,13 @@
     VcsChipArrayInput,
     VcsTextArea,
     VcsProjection,
+    VcsSelect,
   } from '@vcmap/ui';
-  import { ref, defineComponent, PropType } from 'vue';
+  import { ref, defineComponent, PropType, watch } from 'vue';
   import { PluginConfig } from './wfsSearch.js';
-  import getDefaultOptions from './defaultOptions.js';
+  import { getMergedDefaultOptions } from './defaultOptions.js';
+
+  type BalloonType = 'address' | 'markdown';
 
   function isRequired(value: string): boolean | string {
     return value !== '' || 'searchWfs.configEditor.isRequired';
@@ -273,6 +325,7 @@
       VcsLabel,
       VcsTextField,
       VcsProjection,
+      VcsSelect,
     },
     props: {
       getConfig: {
@@ -285,22 +338,28 @@
       },
     },
     setup(props) {
-      const localConfig = ref(getDefaultOptions());
-      const config = props.getConfig();
-      for (const [key, value] of Object.entries(config)) {
-        if (value) {
-          if (typeof value === 'object') {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            Object.assign(localConfig.value[key], value);
-          } else {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            localConfig.value[key] = value;
-          }
-        }
-      }
+      const localConfig = ref(getMergedDefaultOptions(props.getConfig()));
 
+      const balloonType = ref<BalloonType>(
+        localConfig.value.featureInfoViewOptions?.type ===
+          'MarkdownBalloonFeatureInfoView'
+          ? 'markdown'
+          : 'address',
+      );
+      watch(
+        balloonType,
+        () => {
+          if (balloonType.value === 'address') {
+            localConfig.value.featureInfoViewOptions = undefined;
+          } else {
+            localConfig.value.featureInfoViewOptions = {
+              type: 'MarkdownBalloonFeatureInfoView',
+              template: '',
+            };
+          }
+        },
+        { flush: 'sync' },
+      );
       const apply = (): void => {
         props.setConfig(localConfig.value);
       };
@@ -309,6 +368,7 @@
         apply,
         isRequired,
         localConfig,
+        balloonType,
       };
     },
   });

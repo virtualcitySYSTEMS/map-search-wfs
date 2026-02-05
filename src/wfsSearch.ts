@@ -1,5 +1,5 @@
 import {
-  AddressBalloonFeatureInfoView,
+  BalloonFeatureInfoViewOptions,
   featureInfoViewSymbol,
   VcsUiApp,
 } from '@vcmap/ui';
@@ -30,6 +30,9 @@ export type PluginConfig = {
   regEx: string;
   minToken: number;
   projection?: ProjectionOptions;
+  displayNameTemplate?: string;
+  featureInfoViewOptions?: BalloonFeatureInfoViewOptions &
+    Record<string, unknown>;
 };
 
 class WfsSearch implements SearchImpl {
@@ -37,11 +40,11 @@ class WfsSearch implements SearchImpl {
 
   url!: string;
 
-  addressMapping: AddressBalloonFeatureInfoViewOptions;
-
   getFeatureOptions: WriteGetFeatureOptions;
 
   filterExpression!: (arg0: object) => string;
+
+  displayNameTemplate: (arg0: object) => string;
 
   isStoredQuery?: boolean;
 
@@ -51,6 +54,8 @@ class WfsSearch implements SearchImpl {
 
   projection: Projection;
 
+  featureInfoViewOptions: BalloonFeatureInfoViewOptions;
+
   constructor(app: VcsUiApp, config: PluginConfig) {
     this.app = app;
     if (is(config.url, String)) {
@@ -59,15 +64,41 @@ class WfsSearch implements SearchImpl {
       getLogger(name).error('Please provide an url');
     }
 
-    this.addressMapping = Object.assign(
-      AddressBalloonFeatureInfoView.getDefaultOptions(),
-      config.addressMapping,
-    );
+    let featureInfoViewOptions: BalloonFeatureInfoViewOptions;
+    if (config.featureInfoViewOptions) {
+      featureInfoViewOptions = {
+        name: 'WfsSearchBalloon',
+        balloonSubtitle: '',
+        ...config.featureInfoViewOptions,
+      };
+    } else {
+      featureInfoViewOptions = {
+        type: 'AddressBalloonFeatureInfoView',
+        name: 'WfsSearchBalloon',
+        balloonSubtitle: '',
+        ...config.addressMapping,
+      };
+    }
+    this.featureInfoViewOptions = featureInfoViewOptions;
+
     this.getFeatureOptions = config.getFeatureOptions;
     if (is(config.filterExpression, String)) {
       this.filterExpression = UnderscoreTemplate(config.filterExpression);
     } else {
-      getLogger(name).error('Please provide a filterExpression');
+      getLogger(name).error('Please provide a filter expression');
+    }
+    if (is(config.displayNameTemplate, String)) {
+      this.displayNameTemplate = UnderscoreTemplate(
+        config.displayNameTemplate!,
+      );
+    } else {
+      this.displayNameTemplate = UnderscoreTemplate(
+        `<%= ${config.addressMapping.street} %> <%= ${
+          config.addressMapping.number
+        } %>, <%= ${config.addressMapping.zip} %> <%= ${
+          config.addressMapping.city
+        } %>`,
+      );
     }
     this.isStoredQuery = parseBoolean(config.isStoredQuery, false);
     this.regEx = config.regEx;
@@ -103,19 +134,14 @@ class WfsSearch implements SearchImpl {
             featureProjection: mercatorProjection.proj,
           })
           .map((feature) => {
-            const displayName = `${feature.get(this.addressMapping.street!)} ${feature.get(
-              this.addressMapping.number!,
-            )}, ${feature.get(
-              this.addressMapping.zip!,
-            )} ${feature.get(this.addressMapping.city!)}`;
-            // eslint-disable-next-line
-            // @ts-ignore
-            feature[featureInfoViewSymbol] = new AddressBalloonFeatureInfoView({
-              type: 'AddressBalloonFeatureInfoView',
-              name: 'WfsSearchBalloon',
-              balloonSubtitle: '',
-              ...this.addressMapping,
-            } as AddressBalloonFeatureInfoViewOptions);
+            const displayName = this.displayNameTemplate(
+              feature.getProperties(),
+            );
+            // @ts-expect-error not properly exported from the ui
+            feature[featureInfoViewSymbol] =
+              this.app.featureInfoClassRegistry.createFromTypeOptions(
+                this.featureInfoViewOptions,
+              );
             return {
               title: displayName,
               feature,

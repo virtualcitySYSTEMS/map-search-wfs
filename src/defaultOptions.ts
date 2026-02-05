@@ -24,3 +24,26 @@ export default function getDefaultOptions(): PluginConfig {
     projection: wgs84Projection.toJSON(),
   };
 }
+
+export function getMergedDefaultOptions(
+  config?: Partial<PluginConfig>,
+): PluginConfig {
+  const mergedConfig = getDefaultOptions();
+  if (!config) {
+    return mergedConfig;
+  }
+
+  Object.entries(config).forEach(([key, value]) => {
+    if (value) {
+      if (typeof value === 'object') {
+        // @ts-expect-error -- dynamic key access
+        mergedConfig[key] = { ...mergedConfig[key], ...value };
+      } else {
+        // @ts-expect-error -- dynamic key access
+        mergedConfig[key] = value;
+      }
+    }
+  });
+
+  return mergedConfig;
+}

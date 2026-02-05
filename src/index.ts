@@ -2,13 +2,16 @@ import { Projection } from '@vcmap/core';
 import { PluginConfigEditor, VcsPlugin, VcsUiApp } from '@vcmap/ui';
 import { name, version, mapVersion } from '../package.json';
 import WfsSearch, { PluginConfig } from './wfsSearch.js';
-import getDefaultOptions from './defaultOptions.js';
+import getDefaultOptions, {
+  getMergedDefaultOptions,
+} from './defaultOptions.js';
 import ConfigEditor from './ConfigEditor.vue';
 
 export default function wfsSearchPlugin(
   config: PluginConfig,
 ): VcsPlugin<PluginConfig, Record<never, never>> {
   let app: VcsUiApp;
+
   return {
     get name(): string {
       return name;
@@ -21,7 +24,10 @@ export default function wfsSearchPlugin(
     },
     initialize(vcsUiApp: VcsUiApp): void {
       app = vcsUiApp;
-      vcsUiApp.search.add(new WfsSearch(vcsUiApp, config), name);
+      vcsUiApp.search.add(
+        new WfsSearch(vcsUiApp, getMergedDefaultOptions(config)),
+        name,
+      );
     },
     getDefaultOptions,
     toJSON(): PluginConfig {
@@ -33,7 +39,10 @@ export default function wfsSearchPlugin(
         filterExpression: config.filterExpression,
         regEx: config.regEx,
         minToken: config.minToken,
+        displayNameTemplate: config.displayNameTemplate,
+        featureInfoViewOptions: config.featureInfoViewOptions,
       };
+
       if (
         config.isStoredQuery &&
         config.isStoredQuery !== defaultOptions.isStoredQuery
@@ -62,6 +71,11 @@ export default function wfsSearchPlugin(
             storedQuery: 'Stored Query',
             addressMapping: 'Address Attribute Mapping',
             isRequired: 'Input is required',
+            displayNameTemplate: 'Display Name Template',
+            balloonType: 'Balloon Type',
+            markdown: 'Markdown',
+            address: 'Address',
+            markdownTemplate: 'Template',
           },
         },
       },
@@ -76,6 +90,11 @@ export default function wfsSearchPlugin(
             storedQuery: 'Vordefinierte  Anfrage',
             addressMapping: 'Adressattribute Abbildung',
             isRequired: 'Eingabe ist erforderlich',
+            displayNameTemplate: 'Anzeigenamenvorlage',
+            balloonType: 'Ballontyp',
+            markdown: 'Markdown',
+            address: 'Adresse',
+            markdownTemplate: 'Vorlage',
           },
         },
       },
