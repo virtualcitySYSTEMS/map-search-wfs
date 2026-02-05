@@ -1,3 +1,8 @@
+# v2.1.0
+
+- Adds an option to use a different balloon.
+- Adds an option to provide a display name template.
+
 # v2.0.2
 
 - Update default `regEx`
